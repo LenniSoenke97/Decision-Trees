@@ -129,6 +129,13 @@ class Evaluator(object):
         #                 ** TASK 3.3: COMPLETE THIS METHOD **
         #######################################################################
 
+        i = 0
+        for label in confusion:
+            true_positive = confusion[i][i]
+            rest = confusion.sum(axis=1)[i]
+            p[i] = true_positive/rest
+            i += 1
+
         # You will also need to change this        
         macro_p = averaged(p)
 
