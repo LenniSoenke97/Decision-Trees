@@ -52,11 +52,14 @@ class Evaluator(object):
         for pred in prediction:
             prediction_class = class_labels.index(pred)
             annotation_class = class_labels.index(annotation[i])
+            confusion [prediction_class][annotation_class] += 1
+            '''
             if prediction_class == annotation_class:
                 confusion[prediction_class][prediction_class] += 1
             else:
                 confusion[prediction_class][annotation_class] += 1
                 confusion[annotation_class][prediction_class] += 1
+            ''''
 
             i = i + 1
         
