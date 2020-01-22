@@ -8,6 +8,7 @@
 ##############################################################################
 
 import numpy as np
+import entropy as ep
 
 
 class DecisionTreeClassifier(object):
@@ -60,11 +61,20 @@ class DecisionTreeClassifier(object):
         #                 ** TASK 2.1: COMPLETE THIS METHOD **
         #######################################################################
         
+        # Own
         
+        def find_best_node(feature_set, label_set, number_splits):
+            return # Node and threshold(s)
+
+        # Thresholds is array of threshold (integer value)
+        def split_dataset(parent_set, node, thresholds):
+            return # Array of children_subsets
+
         
+
         # set a flag so that we know that the classifier has been trained
         self.is_trained = True
-        
+
         return self
     
     
