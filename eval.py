@@ -47,6 +47,18 @@ class Evaluator(object):
             class_labels = np.unique(annotation)
         
         confusion = np.zeros((len(class_labels), len(class_labels)), dtype=np.int)
+
+        i=0
+        for pred in prediction:
+            prediction_class = class_labels.index(pred)
+            annotation_class = class_labels.index(annotation[i])
+            if prediction_class == annotation_class:
+                confusion[prediction_class][prediction_class] += 1
+            else:
+                confusion[prediction_class][annotation_class] += 1
+                confusion[annotation_class][prediction_class] += 1
+
+            i = i + 1
         
         
         #######################################################################
