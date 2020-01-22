@@ -59,7 +59,7 @@ class Evaluator(object):
             else:
                 confusion[prediction_class][annotation_class] += 1
                 confusion[annotation_class][prediction_class] += 1
-            ''''
+            '''
 
             i = i + 1
         
