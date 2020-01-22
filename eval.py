@@ -50,9 +50,9 @@ class Evaluator(object):
 
         i=0
         for pred in prediction:
-            prediction_class = class_labels.index(pred)
-            annotation_class = class_labels.index(annotation[i])
-            confusion [prediction_class][annotation_class] += 1
+            prediction_class = list(class_labels).index(pred)
+            annotation_class = list(class_labels).index(annotation[i])
+            confusion [annotation_class][prediction_class] += 1
             '''
             if prediction_class == annotation_class:
                 confusion[prediction_class][prediction_class] += 1
@@ -137,7 +137,7 @@ class Evaluator(object):
             i += 1
 
         # You will also need to change this        
-        macro_p = averaged(p)
+        macro_p = np.average(p)
 
         return (p, macro_p)
     
@@ -177,7 +177,7 @@ class Evaluator(object):
         #######################################################################
         
         # You will also need to change this        
-        macro_r = averaged(r)
+        macro_r = np.average(r)
         
         return (r, macro_r)
     
@@ -205,10 +205,10 @@ class Evaluator(object):
         
         # Initialise array to store recall for C classes
         f = np.zeros((len(confusion), 1))
-        precision, precision_arr = self.precision(confusion)
-        recall, recall_arr = self.recall(confusion)
+        precision, p = self.precision(confusion)
+        recall, r = self.recall(confusion)
         for i in range(0,len(confusion)):
-            f[i] = (2*precision[i]*recall[i])/(precision+recall)
+            f[i] = (2*precision[i]*recall[i])/(precision[i]+recall[i])
             i += 1
         
         #######################################################################
@@ -216,7 +216,7 @@ class Evaluator(object):
         #######################################################################
         
         # You will also need to change this        
-        macro_f = averaged(f)
+        macro_f = np.average(f)
         
         return (f, macro_f)
    
