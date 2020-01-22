@@ -88,8 +88,13 @@ class Evaluator(object):
         """
         
         # feel free to remove this
-        accuracy = 0.0
+        return confusion.trace()/confusion.sum()
+            
+
+
         
+        
+
         #######################################################################
         #                 ** TASK 3.2: COMPLETE THIS METHOD **
         #######################################################################
