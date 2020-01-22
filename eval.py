@@ -47,6 +47,21 @@ class Evaluator(object):
             class_labels = np.unique(annotation)
         
         confusion = np.zeros((len(class_labels), len(class_labels)), dtype=np.int)
+
+        i=0
+        for pred in prediction:
+            prediction_class = list(class_labels).index(pred)
+            annotation_class = list(class_labels).index(annotation[i])
+            confusion [annotation_class][prediction_class] += 1
+            '''
+            if prediction_class == annotation_class:
+                confusion[prediction_class][prediction_class] += 1
+            else:
+                confusion[prediction_class][annotation_class] += 1
+                confusion[annotation_class][prediction_class] += 1
+            '''
+
+            i = i + 1
         
         
         #######################################################################
@@ -73,8 +88,13 @@ class Evaluator(object):
         """
         
         # feel free to remove this
-        accuracy = 0.0
+        return confusion.trace()/confusion.sum()
+            
+
+
         
+        
+
         #######################################################################
         #                 ** TASK 3.2: COMPLETE THIS METHOD **
         #######################################################################
@@ -103,14 +123,21 @@ class Evaluator(object):
         """
         
         # Initialise array to store precision for C classes
-        p = np.zeros((len(confusion), ))
-        
+        p = np.zeros((len(confusion), 1))
+
         #######################################################################
         #                 ** TASK 3.3: COMPLETE THIS METHOD **
         #######################################################################
 
+        i = 0
+        for label in confusion:
+            true_positive = confusion[i][i]
+            rest = confusion.sum(axis=1)[i]
+            p[i] = true_positive/rest
+            i += 1
+
         # You will also need to change this        
-        macro_p = 0
+        macro_p = np.average(p)
 
         return (p, macro_p)
     
@@ -137,14 +164,20 @@ class Evaluator(object):
         """
         
         # Initialise array to store recall for C classes
-        r = np.zeros((len(confusion), ))
+        r = np.zeros((len(confusion), 1))
+        i = 0
+        for label in confusion:
+            true_positive = confusion[i][i]
+            rest = confusion.sum(axis=0)[i]
+            r[i] = true_positive/rest
+            i += 1
         
         #######################################################################
         #                 ** TASK 3.4: COMPLETE THIS METHOD **
         #######################################################################
         
         # You will also need to change this        
-        macro_r = 0
+        macro_r = np.average(r)
         
         return (r, macro_r)
     
@@ -171,14 +204,19 @@ class Evaluator(object):
         """
         
         # Initialise array to store recall for C classes
-        f = np.zeros((len(confusion), ))
+        f = np.zeros((len(confusion), 1))
+        precision, p = self.precision(confusion)
+        recall, r = self.recall(confusion)
+        for i in range(0,len(confusion)):
+            f[i] = (2*precision[i]*recall[i])/(precision[i]+recall[i])
+            i += 1
         
         #######################################################################
         #                 ** YOUR TASK: COMPLETE THIS METHOD **
         #######################################################################
         
         # You will also need to change this        
-        macro_f = 0
+        macro_f = np.average(f)
         
         return (f, macro_f)
    
