@@ -118,14 +118,14 @@ class Evaluator(object):
         """
         
         # Initialise array to store precision for C classes
-        p = np.zeros((len(confusion), ))
-        
+        p = np.zeros((len(confusion), 1))
+
         #######################################################################
         #                 ** TASK 3.3: COMPLETE THIS METHOD **
         #######################################################################
 
         # You will also need to change this        
-        macro_p = 0
+        macro_p = averaged(p)
 
         return (p, macro_p)
     
@@ -152,14 +152,20 @@ class Evaluator(object):
         """
         
         # Initialise array to store recall for C classes
-        r = np.zeros((len(confusion), ))
+        r = np.zeros((len(confusion), 1))
+        i = 0
+        for label in confusion:
+            true_positive = confusion[i][i]
+            rest = confusion.sum(axis=0)[i]
+            r[i] = true_positive/rest
+            i += 1
         
         #######################################################################
         #                 ** TASK 3.4: COMPLETE THIS METHOD **
         #######################################################################
         
         # You will also need to change this        
-        macro_r = 0
+        macro_r = averaged(r)
         
         return (r, macro_r)
     
@@ -186,14 +192,19 @@ class Evaluator(object):
         """
         
         # Initialise array to store recall for C classes
-        f = np.zeros((len(confusion), ))
+        f = np.zeros((len(confusion), 1))
+        precision, precision_arr = self.precision(confusion)
+        recall, recall_arr = self.recall(confusion)
+        for i in range(0,len(confusion)):
+            f[i] = (2*precision[i]*recall[i])/(precision+recall)
+            i += 1
         
         #######################################################################
         #                 ** YOUR TASK: COMPLETE THIS METHOD **
         #######################################################################
         
         # You will also need to change this        
-        macro_f = 0
+        macro_f = averaged(f)
         
         return (f, macro_f)
    
