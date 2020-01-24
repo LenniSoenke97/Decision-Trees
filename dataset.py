@@ -29,13 +29,3 @@ def read_dataset(filename):
         count += 1
     
     return feature_array.astype(int), label_array
-
-# read train_full dataset
-f_a, l_a = read_dataset("./data/train_full.txt")
-
-#  unique integers in the features
-for i in range(0, np.size(f_a, 1)):
-    print(np.unique(f_a[:, i]))
-
-# unique labels
-print(np.unique(l_a))
