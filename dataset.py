@@ -49,12 +49,14 @@ def TEST_search(sample, noisy_feature):
 
 def TEST_different(full_feature, full_label, noisy_feature, noisy_label):
     count = 0
-    
+    false_list = []
+
     for sset in full_feature:
             line = TEST_search(sset, noisy_feature)
             if line != -1 and full_label[line] != noisy_label[line]:
+                false_list.append(full_label[line])
                 count += 1
-    return count
+    return count, false_list
 
 full_feature, full_label = read_dataset("./data/train_full.txt")
 sub_feature, sub_label = read_dataset("./data/train_sub.txt")
@@ -86,6 +88,9 @@ print("Full  Label Values: ", np.around(c_distribution, 5)*100)
 print("Sub   Label Values: ", np.around(d_distribution, 5)*100)
 print("Noisy Label Values: ", np.around(f_distribution, 5)*100)
 
-print("Noisy Percentage: ", TEST_different(full_feature, full_label, noisy_feature, noisy_label) / full_label.size)
+false_count, false_letters = TEST_different(full_feature, full_label, noisy_feature, noisy_label)
+g = np.unique(np.asarray(false_letters), return_counts=True)
+print("Noisy Percentage: ", false_count / full_label.size)
+print((g[1]/np.sum(g[1]))*100)
 
 
