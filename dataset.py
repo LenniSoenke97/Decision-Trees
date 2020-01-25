@@ -36,8 +36,9 @@ def read_dataset(filename):
         label_array[count] = i[0]
         count += 1
     
-    return feature_array.astype(int), label_array
+    return feature_array.astype(np.int8), label_array
 
+'''
 ############################## FUNCTION TESTS ################################
 
 def TEST_search(sample, noisy_feature):
@@ -92,5 +93,6 @@ false_count, false_letters = TEST_different(full_feature, full_label, noisy_feat
 g = np.unique(np.asarray(false_letters), return_counts=True)
 print("Noisy Percentage: ", false_count / full_label.size)
 print((g[1]/np.sum(g[1]))*100)
+'''
 
 
