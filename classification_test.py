@@ -13,7 +13,7 @@ class TestClassification(unittest.TestCase):
     def test_split_dataset(self):
         feature = 1
         thresholds = [4]
-        self.dtc.find_best_node(self.feature_arr, )
+        self.dtc.find_best_node(self.feature_arr, self.label_arr)
         actual = self.dtc.split_dataset([self.feature_arr, self.label_arr], feature, thresholds)
         expected = [[np.array([[1, 3, 1], [2, 1, 2], [5, 2, 6], [2, 4, 2]], dtype=np.int8),
                      np.array(['C', 'C', 'C', 'C'])],
@@ -33,5 +33,5 @@ class TestClassification(unittest.TestCase):
     def test_find_best_node(self):
         # Split dataset
         [actual_feature, actual_thresholds] = self.dtc.find_best_node(self.feature_arr, self.label_arr, 1)
-        expected = [1, [5]]
+        expected = [1, [4]]
         self.assertEqual([actual_feature, actual_thresholds], expected)
