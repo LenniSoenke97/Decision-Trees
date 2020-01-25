@@ -9,7 +9,6 @@
 
 import numpy as np
 import entropy as ep
-import node
 
 
 class DecisionTreeClassifier(object):
@@ -32,12 +31,17 @@ class DecisionTreeClassifier(object):
 
     def __init__(self):
         self.is_trained = False
+        self.prediction = None
+        self.feature = None
+        self.threshold = None
+        self.left_child = None
+        self.right_child = None
 
     def find_best_node(self, feature_arr, label_arr):
 
-        best_feature = 'n.a.'
-        max_gain = -1
-        best_threshold = -1
+        best_gain = 0
+        best_feature = None
+        best_threshold = None
 
         # Calculate parent entropy
         parent_entropy = ep.parent_entropy([feature_arr, label_arr])
@@ -48,12 +52,11 @@ class DecisionTreeClassifier(object):
             for threshold in np.unique(feature_arr[:, feature]):
                 children_subsets = self.split_dataset([feature_arr, label_arr], feature, [threshold])
                 info_gain = parent_entropy - ep.child_entropy(children_subsets, feature_arr.shape[0])
-                if info_gain > max_gain:
-                    best_feature = feature  # TODO Consider moving out of inner for loop
-                    max_gain = info_gain
+                if info_gain > best_gain:
+                    best_feature = feature
+                    best_gain = info_gain
                     best_threshold = threshold
 
-        assert (max_gain >= 0)  # Assert best_feature and threshold were changed
         return best_feature, best_threshold
 
     def split_dataset(self, parent_set, feature, thresholds):
@@ -111,7 +114,18 @@ class DecisionTreeClassifier(object):
         #                 ** TASK 2.1: COMPLETE THIS METHOD **
         #######################################################################
 
-        # Own
+        [best_feature, best_threshold] = self.find_best_node(x, y)
+        if best_feature is None:
+            (label, count) = np.unique(y, return_counts=True)
+            self.prediction = label[np.argmax(count)]
+        else:
+            self.feature = best_feature
+            self.threshold = best_threshold
+            children_subsets = self.split_dataset([x, y], best_feature, [best_threshold])
+            self.left_child = DecisionTreeClassifier()
+            self.right_child = DecisionTreeClassifier()
+            self.left_child.train(children_subsets[0][0], children_subsets[0][1])
+            self.right_child.train(children_subsets[1][0], children_subsets[1][1])
 
         # set a flag so that we know that the classifier has been trained
         self.is_trained = True
@@ -148,5 +162,29 @@ class DecisionTreeClassifier(object):
         #                 ** TASK 2.2: COMPLETE THIS METHOD **
         #######################################################################
 
+        # If prediction is set (regardless of data), return prediction
+        if self.prediction is not None:
+            return np.full((x.shape[0],), fill_value=self.prediction, dtype=np.object)
+
+        for sample_idx in range(x.shape[0]):
+            if x[sample_idx, self.feature] < self.threshold:
+                predictions[sample_idx] = self.left_child.predict(np.array([x[sample_idx]]))[0]
+            else:
+                predictions[sample_idx] = self.right_child.predict(np.array([x[sample_idx]]))[0]
+
         # remember to change this if you rename the variable
         return predictions
+
+    def plot(self, level=0):
+        string = ''
+        indent = '   ' * level
+        if level > 0:
+            string += indent
+        string += '+--'
+        if self.prediction is None:
+            string += ('x[' + str(self.feature) + '] < ' + str(self.threshold) + ':\n'
+                       + self.left_child.plot(level + 1) + '\n' + indent + '+--x[' + str(self.feature) + '] >= '
+                       + str(self.threshold) + ':\n' + self.right_child.plot(level + 1))
+        else:
+            string += ' ' + str(self.prediction)
+        return string
