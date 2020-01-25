@@ -9,6 +9,7 @@
 
 import numpy as np
 import entropy as ep
+import node
 
 
 class DecisionTreeClassifier(object):
@@ -32,13 +33,11 @@ class DecisionTreeClassifier(object):
     def __init__(self):
         self.is_trained = False
 
-    def find_best_node(self, feature_arr, label_arr, number_splits=1):
-
-        assert (number_splits == 1)  # Only binary split implemented so far
+    def find_best_node(self, feature_arr, label_arr):
 
         best_feature = 'n.a.'
         max_gain = -1
-        thresholds = []
+        best_threshold = -1
 
         # Calculate parent entropy
         parent_entropy = ep.parent_entropy([feature_arr, label_arr])
@@ -52,13 +51,11 @@ class DecisionTreeClassifier(object):
                 if info_gain > max_gain:
                     best_feature = feature  # TODO Consider moving out of inner for loop
                     max_gain = info_gain
-                    thresholds = [threshold]
+                    best_threshold = threshold
 
         assert (max_gain >= 0)  # Assert best_feature and threshold were changed
-        return best_feature, thresholds
+        return best_feature, best_threshold
 
-    # Thresholds is array of threshold for which all less than or equal to threshold value will be put in set
-    # "left" of split
     def split_dataset(self, parent_set, feature, thresholds):
         feature_arr = parent_set[0]
         label_arr = parent_set[1]
@@ -72,7 +69,7 @@ class DecisionTreeClassifier(object):
         for row in range(len(feature_arr)):
             copied = False
             for split in range(len(thresholds)):
-                if feature_arr[row][feature] <= thresholds[split]:
+                if feature_arr[row][feature] < thresholds[split]:
                     children_subsets[split][0].append(feature_arr[row])
                     children_subsets[split][1].append(label_arr[row])
                     copied = True
