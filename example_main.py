@@ -57,11 +57,12 @@ if __name__ == "__main__":
     (r, macro_r) = evaluator.recall(confusion)
     (f, macro_f) = evaluator.f1_score(confusion)
 
+    print(f)
     print()
     print("Class: Precision, Recall, F1")
     for (i, (p1, r1, f1)) in enumerate(zip(p, r, f)):
-        print("{}: {:.2f}, {:.2f}, {:.2f}".format(classes[i], p1, r1, f1));
-   
+        print("{}: {:.2f}, {:.2f}, {:.2f}".format(classes[i], p1, r1, f1))
+
     print() 
     print("Macro-averaged Precision: {:.2f}".format(macro_p))
     print("Macro-averaged Recall: {:.2f}".format(macro_r))
