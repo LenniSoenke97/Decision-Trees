@@ -123,7 +123,9 @@ class Evaluator(object):
         """
         
         # Initialise array to store precision for C classes
-        p = np.zeros((len(confusion), 1))
+        #p = np.zeros((len(confusion), 1))
+        p = []
+
 
         #######################################################################
         #                 ** TASK 3.3: COMPLETE THIS METHOD **
@@ -133,7 +135,7 @@ class Evaluator(object):
         for label in confusion:
             true_positive = confusion[i][i]
             rest = confusion.sum(axis=1)[i]
-            p[i] = true_positive/rest
+            p.append(true_positive/rest)
             i += 1
 
         # You will also need to change this        
@@ -164,12 +166,12 @@ class Evaluator(object):
         """
         
         # Initialise array to store recall for C classes
-        r = np.zeros((len(confusion), 1))
+        r = []
         i = 0
         for label in confusion:
             true_positive = confusion[i][i]
             rest = confusion.sum(axis=0)[i]
-            r[i] = true_positive/rest
+            r.append(true_positive/rest)
             i += 1
         
         #######################################################################
@@ -204,11 +206,11 @@ class Evaluator(object):
         """
         
         # Initialise array to store recall for C classes
-        f = np.zeros((len(confusion), 1))
+        f = []
         precision, p = self.precision(confusion)
         recall, r = self.recall(confusion)
         for i in range(0,len(confusion)):
-            f[i] = (2*precision[i]*recall[i])/(precision[i]+recall[i])
+            f.append((2*precision[i]*recall[i])/(precision[i]+recall[i]))
             i += 1
         
         #######################################################################
