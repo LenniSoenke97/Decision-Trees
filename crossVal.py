@@ -1,5 +1,5 @@
 import numpy as np
-from Classification import DecisionTreeClassifier
+from classification import DecisionTreeClassifier
 from eval import Evaluator
 
 
@@ -18,11 +18,10 @@ def k_split(dataset, k):
         """
 
 
-    fold_size = dataset.shape[0]/k
-    index = np.random.permutation(dataset.shape[0])
-    fold_split = np.split(index, k)
+    index = np.random.permutation(dataset[0].shape[0])
+    fold_index= np.split(index, k)
 
-    return fold_split
+    return fold_index
 
     
 def cross_validate(dataset, k):
@@ -43,21 +42,26 @@ def cross_validate(dataset, k):
         """
     
     treeAcc=[]
-    fold_split = k_split(dataset, k)
+    fold_index = k_split(dataset, k)
 
-    for valid_idx in fold_idx:
+    for valid_index in fold_index:
 
-        valid_set = dataset[valid_idx,:]
-        train_set = dataset[np.delete(np.arange(dataset.shape[0]), valid_idx),:]
-
+        evlu = Evaluator()
         tree = DecisionTreeClassifier()
-        tree.train(train_set[:,:15], train_set[:,:-1])
-        predictions = tree.predict(valid_set[:,:15])
-        confusion = Evaluator.confusion_matrix(predictions, valid_set[:,-1])
+        
+        train_index = np.delete(np.arange(dataset[0].shape[0]),valid_index)
+        
+        valid_set= (dataset[0][valid_index,:],dataset[1][valid_index])
+        train_set = (dataset[0][train_index,:],dataset[1][train_index])
 
-        treeAcc.append((tree, Evaluator.accuracy(confusion)))
+        tree.train(train_set[0], train_set[1])
+        predictions = tree.predict(valid_set[0])
 
-    treeAcc= sorted(treeAcc, key=lambda Acc: Acc[1])   # sort by accuracy 
+        confusion = evlu.confusion_matrix(predictions, valid_set[1])
+
+        treeAcc.append((tree, evlu.accuracy(confusion)))
+
+    treeAcc= sorted(treeAcc, key=lambda Acc: -Acc[1])   # sort by accuracy 
     return treeAcc
 
 
