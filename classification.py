@@ -73,10 +73,13 @@ class DecisionTreeClassifier(object):
         #                 ** TASK 2.1: COMPLETE THIS METHOD **
         #######################################################################
 
+        # Attempt to find the best node to split on
         [best_feature, best_threshold] = find_best_node(x, y)
+        # If the dataset can not be split further to enhance information, store majority predicted label
         if best_feature is None:
             (label, count) = np.unique(y, return_counts=True)
             self.prediction = label[np.argmax(count)]
+        # Note split and train children classifiers
         else:
             self.feature = best_feature
             self.threshold = best_threshold
