@@ -13,12 +13,22 @@ import entropy as ep
 
 class DecisionTreeClassifier(object):
     """
-    A decision tree classifier
+    A binary decision tree classifier for integer values
     
     Attributes
     ----------
     is_trained : bool
         Keeps track of whether the classifier has been trained
+    prediction : int
+        Predicted label of classifier (None for all but leaf nodes)
+    feature : int
+        Feature array index of node feature
+    threshold :
+        Node threshold (<threshold classified by left child, >= classified by right child)
+    left_child :
+        Left child classifier (None for leaf nodes)
+    right_child :
+        Right child classifier (None for leaf nodes)
     
     Methods
     -------
@@ -26,7 +36,8 @@ class DecisionTreeClassifier(object):
         Constructs a decision tree from data X and label y
     predict(X)
         Predicts the class label of samples X
-    
+    plot()
+        Plots decision tree
     """
 
     def __init__(self):
@@ -36,57 +47,6 @@ class DecisionTreeClassifier(object):
         self.threshold = None
         self.left_child = None
         self.right_child = None
-
-    def find_best_node(self, feature_arr, label_arr):
-
-        best_gain = 0
-        best_feature = None
-        best_threshold = None
-
-        # Calculate parent entropy
-        parent_entropy = ep.parent_entropy([feature_arr, label_arr])
-
-        # Iterate over features (rows of transposed feature_set)
-        for feature in range(feature_arr.shape[1]):
-            # Iterate over possible thresholds
-            for threshold in np.unique(feature_arr[:, feature]):
-                children_subsets = self.split_dataset([feature_arr, label_arr], feature, [threshold])
-                info_gain = parent_entropy - ep.child_entropy(children_subsets, feature_arr.shape[0])
-                if info_gain > best_gain:
-                    best_feature = feature
-                    best_gain = info_gain
-                    best_threshold = threshold
-
-        return best_feature, best_threshold
-
-    def split_dataset(self, parent_set, feature, thresholds):
-        feature_arr = parent_set[0]
-        label_arr = parent_set[1]
-        assert feature_arr.shape[0] == label_arr.shape[0]
-
-        # Prepare empty nested arrays for children subsets
-        children_subsets = [[[], []] for _ in range(len(thresholds) + 1)]
-
-        # Copy parent dataset rows into appropriate children datasets
-        thresholds.sort()
-        for row in range(len(feature_arr)):
-            copied = False
-            for split in range(len(thresholds)):
-                if feature_arr[row][feature] < thresholds[split]:
-                    children_subsets[split][0].append(feature_arr[row])
-                    children_subsets[split][1].append(label_arr[row])
-                    copied = True
-                    break
-            if not copied:  # Value of node is not below any threshold for the row, append to last children subset
-                children_subsets[-1][0].append(feature_arr[row])
-                children_subsets[-1][1].append(label_arr[row])
-
-        # Convert feature and label arrays to Numpy array type
-        for split in range(len(thresholds) + 1):
-            children_subsets[split][0] = np.asarray(children_subsets[split][0], parent_set[0].dtype)
-            children_subsets[split][1] = np.asarray(children_subsets[split][1], parent_set[1].dtype)
-
-        return children_subsets
 
     def train(self, x, y):
         """ Constructs a decision tree classifier from data
@@ -103,7 +63,6 @@ class DecisionTreeClassifier(object):
         -------
         DecisionTreeClassifier
             A copy of the DecisionTreeClassifier instance
-        
         """
 
         # Make sure that x and y have the same number of instances
@@ -114,14 +73,14 @@ class DecisionTreeClassifier(object):
         #                 ** TASK 2.1: COMPLETE THIS METHOD **
         #######################################################################
 
-        [best_feature, best_threshold] = self.find_best_node(x, y)
+        [best_feature, best_threshold] = find_best_node(x, y)
         if best_feature is None:
             (label, count) = np.unique(y, return_counts=True)
             self.prediction = label[np.argmax(count)]
         else:
             self.feature = best_feature
             self.threshold = best_threshold
-            children_subsets = self.split_dataset([x, y], best_feature, [best_threshold])
+            children_subsets = split_dataset([x, y], best_feature, best_threshold)
             self.left_child = DecisionTreeClassifier()
             self.right_child = DecisionTreeClassifier()
             self.left_child.train(children_subsets[0][0], children_subsets[0][1])
@@ -188,3 +147,60 @@ class DecisionTreeClassifier(object):
         else:
             string += ' ' + str(self.prediction)
         return string
+
+
+def split_dataset(parent_set, feature, threshold):
+    """
+        Splits input parent_set dataset into two children subsets according to feature and threshold
+    """
+
+    num_children_subsets = 2
+    feature_arr = parent_set[0]
+    label_arr = parent_set[1]
+    assert feature_arr.shape[0] == label_arr.shape[0]
+
+    # Prepare empty nested arrays for children subsets
+    children_subsets = [[[], []] for _ in range(num_children_subsets)]
+
+    # Copy parent dataset rows into appropriate children dataset
+    for row in range(len(feature_arr)):
+        if feature_arr[row][feature] < threshold:
+            children_subsets[0][0].append(feature_arr[row])
+            children_subsets[0][1].append(label_arr[row])
+            copied = True
+        else:
+            children_subsets[1][0].append(feature_arr[row])
+            children_subsets[1][1].append(label_arr[row])
+
+    # Convert feature and label arrays to Numpy array type
+    for child in range(num_children_subsets):
+        children_subsets[child][0] = np.asarray(children_subsets[child][0], parent_set[0].dtype)
+        children_subsets[child][1] = np.asarray(children_subsets[child][1], parent_set[1].dtype)
+
+    return children_subsets
+
+
+def find_best_node(feature_arr, label_arr):
+    """
+        Finds best node (highest information gain) of feature and label arrays
+    """
+
+    best_gain = 0
+    best_feature = None
+    best_threshold = None
+
+    # Calculate parent entropy
+    parent_entropy = ep.parent_entropy([feature_arr, label_arr])
+
+    # Iterate over features (rows of transposed feature_set)
+    for feature in range(feature_arr.shape[1]):
+        # Iterate over possible thresholds
+        for threshold in np.unique(feature_arr[:, feature]):
+            children_subsets = split_dataset([feature_arr, label_arr], feature, threshold)
+            info_gain = parent_entropy - ep.child_entropy(children_subsets, feature_arr.shape[0])
+            if info_gain > best_gain:
+                best_feature = feature
+                best_gain = info_gain
+                best_threshold = threshold
+
+    return best_feature, best_threshold
