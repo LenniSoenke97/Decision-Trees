@@ -47,9 +47,6 @@ implement the ``confusion_matrix()``, ``accuracy()``, ``precision()``,
 and invoke the methods defined in ``classification.py`` and ``eval.py``.
 
 
-### Instructions
-
-< Insert your own instructions here >
 
 
 
